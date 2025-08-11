@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Serverless API for Ahmed's Portfolio Chatbot",
   "main": "api/chat.js",
-  "type": "module",
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod"
@@ -12,6 +11,6 @@
     "node-fetch": "^3.3.2"
   },
   "engines": {
-    "node": "18.x"
+    "node": ">=18"
   }
 }

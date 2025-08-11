@@ -49,7 +49,7 @@ Contact:
 - Kaggle: ahmedhazemelabady
 `;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS headers for GitHub Pages
   res.setHeader('Access-Control-Allow-Origin', 'https://ahmed-hazem-1.github.io');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -83,6 +83,9 @@ export default async function handler(req, res) {
       ]
     };
 
+    // Use dynamic import for fetch since we're in CommonJS
+    const fetch = (await import('node-fetch')).default;
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: {
