@@ -1,0 +1,17 @@
+{
+  "name": "ahmed-portfolio-api",
+  "version": "1.0.0",
+  "description": "Serverless API for Ahmed's Portfolio Chatbot",
+  "main": "api/chat.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
