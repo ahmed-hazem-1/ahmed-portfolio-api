@@ -8,46 +8,8 @@ If a question is unrelated, politely decline and steer back to the portfolio.
 If some detail isn't present on the site, say you don't have that info and suggest checking relevant sections (#about, #projects, #skills, #experience, #education, #contact) or external links on the page.
 Be concise, friendly, and professional. Detect the user's language (Arabic/English) and respond accordingly.`;
 
-// Static portfolio context (since we can't read files from GitHub Pages)
-const PORTFOLIO_CONTEXT = `
-Name: Ahmed Hazem Elabady
-Subtitle: Junior Data Scientist • Web Scraper • Cairo, Egypt
-Summary: I'm a Data Science professional who turns raw data into smart, results‑driven decisions. From machine learning and data analysis to web scraping, I uncover insights that cut costs, boost efficiency, and reveal new opportunities.
-
-Skills: Python, Pandas, NumPy, scikit-learn, Data Analysis, Machine Learning, Deep Learning, Computer Vision, Object Detection, TensorFlow, Keras, YOLO, Web Scraping, BeautifulSoup, Selenium, Dash, SQL, Matplotlib, Seaborn, Streamlit, Git & GitHub
-
-Experience:
-- Computer Vision Trainee at National Telecommunication Institute (NTI) • Jul–Aug 2025
-- AI & Data Science Trainee at Digital Egypt Pioneers Initiative (DEPI) • Oct 2024–Jun 2025
-- AI Model Trainer (Freelance) at Outlier • Sep–Nov 2024
-- Information Technology Trainee at EGAS • Jul 2024
-
-Education:
-- B.Sc. Computer Science and Artificial Intelligence at Benha Faculty (2023–2027)
-
-Projects:
-- Waste Detection using YOLO (v8–v11) | Deep Learning · Object Detection | Detects 22 waste categories with 94% mAP50
-- Land Type Classification (EuroSAT) | Deep Learning · Remote Sensing | Classifies Sentinel‑2 images into land‑use types
-- COVID-19 X-ray Detection | CNN · Medical Imaging | CNN with confidence visualization for chest X‑rays
-- Cat vs. Dog Image Classifier | CNN | Binary image classifier with strong generalization
-- Customer Churn Prediction | LR · RF · SVC · KNN · XGBoost | Bank churn prediction with model comparison
-- Heart Disease Indicators | LR · SVC · KNN · Random Forest | Pipeline on 319,795 records
-- Wuzzuf Jobs Dataset | Web Scraping | Scraped 8k+ job listings for analytics
-- Top Ranked Anime Dataset | Web Scraping | Collected 20k entries for trend analysis
-
-Certificates:
-- Fundamentals of Deep Learning – NVIDIA (Apr 2025)
-- InnovEgypt – Innovation and Entrepreneurship – ITIDA (Jul 2024)
-- Python – MaharaTech - ITIMooca (Jun 2024)
-
-Contact:
-- Email: ahmed.hazem.elabady@gmail.com
-- Phone: +20 127 5012 177
-- Location: Cairo, Egypt
-- LinkedIn: Ahmed Hazem Elabady
-- GitHub: ahmed-hazem-1
-- Kaggle: ahmedhazemelabady
-`;
+// The URL where the portfolio content is hosted.
+const PORTFOLIO_URL = 'https://ahmed-hazem-1.github.io/portfolio.txt';
 
 // Simple in-memory cache for the summarized portfolio context
 let portfolioContextCache = null;
@@ -96,9 +58,19 @@ module.exports = async function handler(req, res) {
     // Use dynamic import for fetch since we're in CommonJS
     const fetch = (await import('node-fetch')).default;
 
-    if (isFirstMessage || !portfolioContextCache) {
-      console.log('First message received or cache is empty. Summarizing portfolio context...');
-      const summaryPrompt = `Summarize the following portfolio context in a concise manner. This summary will be used as context for a chatbot. Focus on key information like name, role, skills, and project highlights. The user will ask questions based on this summary.\n\n${PORTFOLIO_CONTEXT}`;
+    if (isFirstMessage) {
+      console.log('First message received. Fetching and summarizing portfolio context...');
+      
+      // Fetch the latest portfolio context from the URL
+      const portfolioResponse = await fetch(PORTFOLIO_URL);
+      if (!portfolioResponse.ok) {
+        console.error('Failed to fetch portfolio context from URL:', PORTFOLIO_URL);
+        // Fallback to an empty context or handle error appropriately
+        return res.status(500).json({ error: 'Failed to fetch portfolio context' });
+      }
+      const portfolioContext = await portfolioResponse.text();
+
+      const summaryPrompt = `Summarize the following portfolio context in a concise manner. This summary will be used as context for a chatbot. Focus on key information like name, role, skills, and project highlights. The user will ask questions based on this summary.\n\n${portfolioContext}`;
       
       const summaryPayload = {
         contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }]
