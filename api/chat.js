@@ -49,6 +49,9 @@ Contact:
 - Kaggle: ahmedhazemelabady
 `;
 
+// Simple in-memory cache for the summarized portfolio context
+let portfolioContextCache = null;
+
 module.exports = async function handler(req, res) {
   // CORS headers for both GitHub Pages and local development
   const allowedOrigins = [
@@ -78,7 +81,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body || {};
+    const { message, history } = req.body || {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Missing "message" string' });
     }
@@ -88,17 +91,50 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Server is not configured with GEMINI_API_KEY' });
     }
 
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-    const payload = {
-      systemInstruction: { role: 'system', parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [
-        { role: 'user', parts: [{ text: `Portfolio context:\n${PORTFOLIO_CONTEXT}` }] },
-        { role: 'user', parts: [{ text: `User question: ${message}` }] }
-      ]
-    };
+    const isFirstMessage = !history || history.length === 0;
 
     // Use dynamic import for fetch since we're in CommonJS
     const fetch = (await import('node-fetch')).default;
+
+    if (isFirstMessage || !portfolioContextCache) {
+      console.log('First message received or cache is empty. Summarizing portfolio context...');
+      const summaryPrompt = `Summarize the following portfolio context in a concise manner. This summary will be used as context for a chatbot. Focus on key information like name, role, skills, and project highlights. The user will ask questions based on this summary.\n\n${PORTFOLIO_CONTEXT}`;
+      
+      const summaryPayload = {
+        contents: [{ role: 'user', parts: [{ text: summaryPrompt }] }]
+      };
+
+      const summaryResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
+        body: JSON.stringify(summaryPayload)
+      });
+
+      if (!summaryResponse.ok) {
+        const errorText = await summaryResponse.text();
+        console.error('Gemini API error (summary)', summaryResponse.status, errorText);
+        return res.status(502).json({ error: 'Gemini API error during summary', status: summaryResponse.status });
+      }
+
+      const summaryData = await summaryResponse.json();
+      const summaryParts = summaryData?.candidates?.[0]?.content?.parts || [];
+      portfolioContextCache = summaryParts.map(p => p.text || '').join('\n').trim();
+      console.log('Portfolio context summarized and cached.');
+    }
+
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    const payload = {
+      systemInstruction: { role: 'system', parts: [{ text: SYSTEM_PROMPT }] },
+      contents: [
+        { role: 'user', parts: [{ text: `Portfolio context:\n${portfolioContextCache}` }] },
+        // Include previous chat history if available
+        ...(history || []).map(entry => ({
+          role: entry.role === 'user' ? 'user' : 'model',
+          parts: [{ text: entry.parts[0].text }]
+        })),
+        { role: 'user', parts: [{ text: `User question: ${message}` }] }
+      ]
+    };
     
     const response = await fetch(url, {
       method: 'POST',
