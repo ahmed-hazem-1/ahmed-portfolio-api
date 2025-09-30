@@ -10,10 +10,10 @@ Enhanced Serverless API for Ahmed Hazem's Portfolio Chatbot with RAG (Retrieval-
 - **Unified Gemini Integration**: Uses Gemini for both chat generation and text embeddings
 - **Multi-language Support**: Detects and responds in Arabic or English
 
-## Deployment to Vercel
+## Deployment to Netlify
 
 1. Create a new repository with this API code
-2. Connect to Vercel
+2. Connect to Netlify
 3. Add environment variable: `GEMINI_API_KEY`
 4. Deploy
 

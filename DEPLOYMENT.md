@@ -18,17 +18,17 @@ Your chatbot now includes advanced RAG (Retrieval-Augmented Generation) capabili
 4. Create a new API key
 5. Copy the key for deployment
 
-## Vercel Deployment Steps
+## Netlify Deployment Steps
 
 1. **Push to GitHub**: Ensure your code is in a GitHub repository
 
-2. **Connect to Vercel**:
-   - Go to [vercel.com](https://vercel.com)
+2. **Connect to Netlify**:
+   - Go to [netlify.com](https://netlify.com)
    - Import your GitHub repository
    - Select the repository containing your API code
 
 3. **Environment Variables**:
-   In Vercel dashboard, add these environment variables:
+   In Netlify dashboard, add these environment variables:
    ```
    GEMINI_API_KEY=your_gemini_api_key_here
    OPENAI_API_KEY=your_openai_api_key_here
@@ -68,10 +68,10 @@ api/
 
 ## Testing Your Deployment
 
-1. Get your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+1. Get your Netlify deployment URL (e.g., `https://your-app.netlify.app`)
 2. Test the API endpoint:
    ```bash
-   curl -X POST https://your-app.vercel.app/api/chat \
+   curl -X POST https://your-app.netlify.app/api/chat \
      -H "Content-Type: application/json" \
      -d '{"message": "What are Ahmed'\''s main skills?"}'
    ```
@@ -80,15 +80,15 @@ api/
 
 - **Gemini API**: Has a generous free tier
 - **OpenAI Embeddings**: ~$0.00002 per 1K tokens (very affordable)
-- **Vercel**: Free tier should be sufficient for personal use
+- **Netlify**: Free tier should be sufficient for personal use
 
 ## Portfolio Integration
 
-Update your portfolio's chatbot frontend to use the new Vercel API URL instead of the local endpoint.
+Update your portfolio's chatbot frontend to use the new Netlify API URL instead of the local endpoint.
 
 ## Monitoring
 
-Check Vercel's function logs to monitor:
+Check Netlify's function logs to monitor:
 - Cache hit/miss rates
 - API usage
 - Error rates

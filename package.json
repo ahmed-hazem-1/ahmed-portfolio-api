@@ -4,8 +4,8 @@
   "description": "Serverless API for Ahmed's Portfolio Chatbot",
   "main": "api/chat.js",
   "scripts": {
-    "dev": "vercel dev",
-    "deploy": "vercel --prod",
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod",
     "test": "node test-server.js",
     "start": "node test-server.js"
   },
